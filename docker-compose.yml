@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: npm run start:dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/appy
+    restart: on-failure

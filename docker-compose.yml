@@ -2,12 +2,25 @@ version: "3.7"
 
 services:
   app:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     command: npm run start:dev
     ports:
       - "3000:3000"
+    depends_on:
+      - db
     volumes:
       - .:/usr/appy
     restart: on-failure
+  db:
+    image: 'postgres:latest'
+    container_name: "afya-db"
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    volumes:
+      - /var/lib/postgresql
+    ports:
+      - "5432:5432"

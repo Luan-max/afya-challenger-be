@@ -2,7 +2,9 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   InternalServerErrorException,
+  Param,
   Post,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -35,5 +37,23 @@ export class NotesController {
   @ApiBody({ type: CreateNoteDto })
   async create(@Body() createNoteDto: CreateNoteDto): Promise<Note> {
     return await this.notesService.create(createNoteDto);
+  }
+
+  @ApiOperation({ summary: 'List medical consultation notes by patients' })
+  @ApiResponse({
+    status: 201,
+    description: 'list medical consultation notes successfully..',
+    type: Note,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server expection error trying list notes',
+    type: InternalServerErrorException,
+  })
+  @Get(':appointmentId')
+  async findAll(
+    @Param('appointmentId') appointmentId: string,
+  ): Promise<Note[]> {
+    return this.notesService.findAll(appointmentId);
   }
 }

@@ -54,4 +54,21 @@ export class NotesService {
       });
     }
   }
+
+  async findAll(appointmentId: string) {
+    try {
+      const notes = await this.notesRepository.find({
+        where: {
+          appointmentId,
+        },
+      });
+
+      return notes;
+    } catch {
+      throw new InternalServerErrorException({
+        message: 'Internal server expection error trying list notes',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
+    }
+  }
 }

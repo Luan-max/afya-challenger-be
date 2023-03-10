@@ -4,8 +4,6 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import {
   NOTES_DTO_APPOINTMENT_ID_DESCRIPTION,
   NOTES_DTO_APPOINTMENT_ID_EXAMPLE,
-  NOTES_DTO_PATIENT_NAME_DESCRIPTION,
-  NOTES_DTO_PATIENT_NAME_EXAMPLE,
   NOTES_DTO_NOTES_EXAMPLE,
   NOTE_DTO_NOTES_DESCRIPTION,
   NOTES_DTO_DATE_DESCRIPTION,
@@ -20,13 +18,6 @@ export class Note {
     example: NOTES_DTO_APPOINTMENT_ID_EXAMPLE,
   })
   id: number;
-
-  @Column()
-  @ApiProperty({
-    description: NOTES_DTO_PATIENT_NAME_DESCRIPTION,
-    example: NOTES_DTO_PATIENT_NAME_EXAMPLE,
-  })
-  patientName: string;
 
   @Column()
   @ApiProperty({

@@ -3,9 +3,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Appointment } from '../../appointments/entities/appointment.entity';
 
 import {
   PATIENT_BIRTHDAY_DESCRIPTION,
@@ -93,6 +95,9 @@ export class Patient {
   })
   @Column({ nullable: false, type: 'varchar' })
   weight: string;
+
+  @OneToMany(() => Appointment, (appointment) => appointment.patientId)
+  appointments: Appointment[];
 
   @ApiProperty({
     description: PATIENT_CREATED_AT_DESCRIPTION,

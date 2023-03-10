@@ -47,7 +47,7 @@ export class AppointmentsService {
         endDate,
       );
 
-      if (isAvailable) {
+      if (!isAvailable) {
         throw new BadRequestException(
           'You already have an appointment scheduled for this time',
         );
@@ -95,13 +95,13 @@ export class AppointmentsService {
         new Date(startDate).setHours(new Date().getHours() + 4),
       ).toISOString();
 
-      const appointment = await checkAppointmentAvailability(
+      const isAvailable = await checkAppointmentAvailability(
         this.appointmentRepository,
         appointmentDate,
         endDate,
       );
 
-      if (appointment) {
+      if (!isAvailable) {
         throw new BadRequestException(
           'You already have an appointment scheduled for this time',
         );

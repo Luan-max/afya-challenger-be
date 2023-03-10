@@ -57,12 +57,12 @@ export class Note {
     example: NOTES_CREATED_AT_EXAMPLE,
   })
   @CreateDateColumn()
-  createdAt: string;
+  createdAt: Date;
 
   @ApiProperty({
     description: NOTES_UPDATED_AT_DESCRIPTION,
     example: NOTES_UPDATED_AT_EXAMPLE,
   })
   @UpdateDateColumn()
-  updatedAt: string;
+  updatedAt: Date;
 }

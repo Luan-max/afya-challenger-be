@@ -19,6 +19,7 @@ export class PatientMocks {
     ...this.createPatientMock,
     id: '1',
     birthday: new Date(),
+    appointments: [],
     createdAt: '',
     updatedAt: '',
   };
@@ -32,6 +33,7 @@ export class PatientMocks {
     ...this.createPatientMock,
     id: '1',
     birthday: new Date(),
+    appointments: [],
     createdAt: '',
     updatedAt: '',
   };

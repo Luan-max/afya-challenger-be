@@ -129,7 +129,7 @@ export class AppointmentsService {
 
   async remove(id: string) {
     try {
-      const appointmentsExists = await this.patientRepository.findOne({
+      const appointmentsExists = await this.appointmentRepository.findOne({
         where: {
           id,
         },

@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   InternalServerErrorException,
@@ -18,6 +17,7 @@ import {
 } from '@nestjs/swagger';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dtos/create-appointment.dto';
+import { UpdateAppointmentDto } from './dtos/update-appointment.dto';
 import { Appointment } from './entities/appointment.entity';
 
 @ApiTags('appointments')
@@ -29,7 +29,7 @@ export class AppointmentsController {
   @Post()
   @ApiResponse({
     status: 201,
-    description: 'appointment created successfully..',
+    description: 'Appointment created successfully',
     type: Appointment,
   })
   @ApiResponse({
@@ -52,7 +52,7 @@ export class AppointmentsController {
   @Get()
   @ApiOkResponse({
     isArray: true,
-    description: 'Returns a list of appointments.',
+    description: 'Returns a list of appointments',
     type: Appointment,
   })
   @ApiResponse({
@@ -62,5 +62,30 @@ export class AppointmentsController {
   })
   public async findAll(): Promise<Appointment[]> {
     return this.appointmentsService.findAll();
+  }
+
+  @ApiOperation({ summary: 'Update an appointment' })
+  @Put(':id')
+  @ApiResponse({
+    status: 200,
+    description: 'Appointment updated successfully',
+    type: Appointment,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'You already have an appointment scheduled for this time',
+    type: BadRequestException,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server expection error trying update appointment',
+    type: InternalServerErrorException,
+  })
+  @HttpCode(204)
+  public async update(
+    @Param('id') id: string,
+    @Body() updateAppointmentDto: UpdateAppointmentDto,
+  ): Promise<void> {
+    return this.appointmentsService.update(id, updateAppointmentDto);
   }
 }

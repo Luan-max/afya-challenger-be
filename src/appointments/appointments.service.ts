@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Patient } from '../patients/entities/patient.entity';
 import { Repository } from 'typeorm';
 import { CreateAppointmentDto } from '../appointments/dtos/create-appointment.dto';
+import { UpdateAppointmentDto } from './dtos/update-appointment.dto';
 import { Appointment } from '../appointments/entities/appointment.entity';
 
 import { checkAppointmentAvailability } from './helpers/checkAppointmentAvailability.helper';
@@ -67,7 +68,7 @@ export class AppointmentsService {
         });
 
       throw new InternalServerErrorException({
-        message: 'Internal server expection error trying create appointments',
+        message: 'Internal server expection error trying create appointment',
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       });
     }
@@ -80,6 +81,47 @@ export class AppointmentsService {
     } catch (error) {
       throw new InternalServerErrorException({
         message: 'Internal server expection error trying list appointments',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
+    }
+  }
+
+  async update(id: string, updateAppointmentDto: UpdateAppointmentDto) {
+    try {
+      const { startDate } = updateAppointmentDto;
+
+      const appointmentDate = startDate;
+      const endDate = new Date(
+        new Date(startDate).setHours(new Date().getHours() + 4),
+      ).toISOString();
+
+      const appointment = await checkAppointmentAvailability(
+        this.appointmentRepository,
+        appointmentDate,
+        endDate,
+      );
+
+      if (appointment) {
+        throw new BadRequestException(
+          'You already have an appointment scheduled for this time',
+        );
+      }
+
+      await this.appointmentRepository.update(id, {
+        startDate: appointmentDate,
+        endDate,
+      });
+
+      return;
+    } catch (error) {
+      if (error instanceof BadRequestException)
+        throw new BadRequestException({
+          message: error.message,
+          statusCode: HttpStatus.BAD_REQUEST,
+        });
+
+      throw new InternalServerErrorException({
+        message: 'Internal server expection error trying update appointment',
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       });
     }

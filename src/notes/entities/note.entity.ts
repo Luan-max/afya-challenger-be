@@ -1,6 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Appointment } from '../../appointments/entities/appointment.entity';
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import {
   NOTES_DTO_APPOINTMENT_ID_DESCRIPTION,
   NOTES_DTO_APPOINTMENT_ID_EXAMPLE,
@@ -8,6 +15,10 @@ import {
   NOTE_DTO_NOTES_DESCRIPTION,
   NOTES_DTO_DATE_DESCRIPTION,
   NOTES_DTO_DATE_EXAMPLE,
+  NOTES_CREATED_AT_DESCRIPTION,
+  NOTES_CREATED_AT_EXAMPLE,
+  NOTES_UPDATED_AT_EXAMPLE,
+  NOTES_UPDATED_AT_DESCRIPTION,
 } from '../constants';
 
 @Entity()
@@ -40,4 +51,18 @@ export class Note {
     example: NOTES_DTO_APPOINTMENT_ID_EXAMPLE,
   })
   appointmentId: string;
+
+  @ApiProperty({
+    description: NOTES_CREATED_AT_DESCRIPTION,
+    example: NOTES_CREATED_AT_EXAMPLE,
+  })
+  @CreateDateColumn()
+  createdAt: string;
+
+  @ApiProperty({
+    description: NOTES_UPDATED_AT_DESCRIPTION,
+    example: NOTES_UPDATED_AT_EXAMPLE,
+  })
+  @UpdateDateColumn()
+  updatedAt: string;
 }

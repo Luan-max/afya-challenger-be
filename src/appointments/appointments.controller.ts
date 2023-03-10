@@ -47,4 +47,20 @@ export class AppointmentsController {
   ): Promise<CreateAppointmentDto> {
     return await this.appointmentsService.create(createAppointmentDto);
   }
+
+  @ApiOperation({ summary: 'List appointments' })
+  @Get()
+  @ApiOkResponse({
+    isArray: true,
+    description: 'Returns a list of appointments.',
+    type: Appointment,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server expection error trying list patients',
+    type: InternalServerErrorException,
+  })
+  public async findAll(): Promise<Appointment[]> {
+    return this.appointmentsService.findAll();
+  }
 }

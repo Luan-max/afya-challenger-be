@@ -72,4 +72,16 @@ export class AppointmentsService {
       });
     }
   }
+
+  async findAll(): Promise<Appointment[]> {
+    try {
+      const appointments = await this.appointmentRepository.find();
+      return appointments;
+    } catch (error) {
+      throw new InternalServerErrorException({
+        message: 'Internal server expection error trying list appointments',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
+    }
+  }
 }

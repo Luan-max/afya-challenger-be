@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  HttpStatus,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -7,8 +8,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Patient } from '../patients/entities/patient.entity';
 import { Repository } from 'typeorm';
 import { CreateAppointmentDto } from '../appointments/dtos/create-appointment.dto';
-import { UpdateAppointmentDto } from '../appointments/dtos/update-appointment.dto';
 import { Appointment } from '../appointments/entities/appointment.entity';
+
+import { checkAppointmentAvailability } from './helpers/checkAppointmentAvailability.helper';
 
 @Injectable()
 export class AppointmentsService {
@@ -28,13 +30,27 @@ export class AppointmentsService {
       });
 
       if (!patient) {
-        throw new Error('Patient does not exists for create appointment');
+        throw new BadRequestException(
+          'Patient does not exists for create appointment',
+        );
       }
 
       const appointmentDate = startDate;
       const endDate = new Date(
         new Date(startDate).setHours(new Date().getHours() + 4),
       ).toISOString();
+
+      const isAvailable = await checkAppointmentAvailability(
+        this.appointmentRepository,
+        appointmentDate,
+        endDate,
+      );
+
+      if (isAvailable) {
+        throw new BadRequestException(
+          'You already have an appointment scheduled for this time',
+        );
+      }
 
       const create = await this.appointmentRepository.save({
         patientId,
@@ -44,74 +60,15 @@ export class AppointmentsService {
 
       return create;
     } catch (error) {
-      throw new InternalServerErrorException({
-        message: 'Internal server expection error trying create appointments',
-        statusCode: 500,
-      });
-    }
-  }
-
-  async findAll(): Promise<Appointment[]> {
-    try {
-      const appointments = await this.appointmentRepository.find();
-      return appointments;
-    } catch (error) {
-      throw new InternalServerErrorException({
-        message: 'Internal server expection error trying list appointments',
-        statusCode: 500,
-      });
-    }
-  }
-
-  async update(id: string, updateAppointmentDto: UpdateAppointmentDto) {
-    try {
-      const { startDate } = updateAppointmentDto;
-
-      const appointmentDate = startDate;
-      const endDate = new Date(
-        new Date(startDate).setHours(new Date().getHours() + 4),
-      ).toISOString();
-
-      await this.appointmentRepository.update(id, {
-        startDate: appointmentDate,
-        endDate,
-      });
-
-      return;
-    } catch (error) {
-      throw new InternalServerErrorException({
-        message: 'Internal server expection error trying update appointments',
-        statusCode: 500,
-      });
-    }
-  }
-
-  async remove(id: string) {
-    try {
-      const appointmentsExists = await this.patientRepository.findOne({
-        where: {
-          id,
-        },
-      });
-
-      if (!appointmentsExists)
-        throw new Error('Appointment you are trying to delete does not exist');
-
-      await this.appointmentRepository.delete(id);
-
-      return;
-    } catch (error) {
-      if (
-        error.message === 'Appointment you are trying to delete does not exist'
-      )
+      if (error instanceof BadRequestException)
         throw new BadRequestException({
           message: error.message,
-          statusCode: 400,
+          statusCode: HttpStatus.BAD_REQUEST,
         });
 
       throw new InternalServerErrorException({
-        message: 'Internal server expection error trying update patient',
-        statusCode: 500,
+        message: 'Internal server expection error trying create appointments',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       });
     }
   }

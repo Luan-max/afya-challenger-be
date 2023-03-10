@@ -126,4 +126,35 @@ export class AppointmentsService {
       });
     }
   }
+
+  async remove(id: string) {
+    try {
+      const appointmentsExists = await this.patientRepository.findOne({
+        where: {
+          id,
+        },
+      });
+
+      if (!appointmentsExists) {
+        throw new BadRequestException(
+          'Appointment you are trying to delete does not exist',
+        );
+      }
+
+      await this.appointmentRepository.delete(id);
+
+      return;
+    } catch (error) {
+      if (error instanceof BadRequestException)
+        throw new BadRequestException({
+          message: error.message,
+          statusCode: HttpStatus.BAD_REQUEST,
+        });
+
+      throw new InternalServerErrorException({
+        message: 'Internal server expection error trying remove patient',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
+    }
+  }
 }

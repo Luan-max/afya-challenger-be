@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   InternalServerErrorException,
@@ -87,5 +88,22 @@ export class AppointmentsController {
     @Body() updateAppointmentDto: UpdateAppointmentDto,
   ): Promise<void> {
     return this.appointmentsService.update(id, updateAppointmentDto);
+  }
+
+  @ApiOperation({ summary: 'Delete an appointment' })
+  @Delete(':id')
+  @ApiResponse({
+    status: 400,
+    description: 'Appointment you are trying to delete does not exist',
+    type: BadRequestException,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server expection error trying delete appointment',
+    type: InternalServerErrorException,
+  })
+  @HttpCode(204)
+  public async remove(@Param('id') id: string): Promise<void> {
+    return this.appointmentsService.remove(id);
   }
 }

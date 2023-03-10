@@ -9,7 +9,7 @@ import {
   NOTES_DTO_NOTES_EXAMPLE,
 } from '../constants';
 
-export class CreateMedicalConsultationNoteDto {
+export class CreateNoteDto {
   @IsNotEmpty()
   @IsDateString()
   @ApiProperty({
@@ -29,7 +29,7 @@ export class CreateMedicalConsultationNoteDto {
   @ApiProperty({
     description: NOTES_DTO_APPOINTMENT_ID_DESCRIPTION,
     example: NOTES_DTO_APPOINTMENT_ID_EXAMPLE,
-    required: false,
+    required: true,
   })
-  appointmentId?: string;
+  appointmentId: string;
 }

@@ -23,6 +23,7 @@ export class AppoitmentMocks {
     id: '1',
     startDate: '2023-02-27 14:40:00.000Z',
     endDate: '2023-02-27 15:40:00.000Z',
+    Notes: [],
     patientId: '91bf8fe2-3e78-4747-ac8d-68a88c390399',
     createdAt: new Date('2023-02-27 14:40:00.000Z'),
     updatedAt: new Date('2023-02-27 14:40:00.000Z'),

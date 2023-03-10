@@ -5,7 +5,7 @@ import {
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Appointment } from '../appointments/entities/appointment.entity';
+import { Appointment } from './entities/appointment.entity';
 import { Patient } from '../patients/entities/patient.entity';
 import { AppoitmentMocks } from './appointments.mocks';
 import { AppointmentsService } from './appointments.service';

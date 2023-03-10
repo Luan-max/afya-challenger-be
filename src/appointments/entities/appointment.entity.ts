@@ -1,7 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Patient } from '../../patients/entities/patient.entity';
+import { Note } from '../../notes/entities/note.entity';
 
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import {
   APPOINTMENT_CREATED_AT_DESCRIPTION,
   APPOINTMENT_CREATED_AT_EXAMPLE,
@@ -47,6 +54,9 @@ export class Appointment {
     example: APPOINTMENT_PATIENT_ID_EXAMPLE,
   })
   patientId: string;
+
+  @OneToMany(() => Note, (note) => note.appointmentId)
+  Notes: Note[];
 
   @Column({
     type: 'timestamp with time zone',

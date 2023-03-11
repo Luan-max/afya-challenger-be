@@ -11,5 +11,5 @@ export async function checkAppointmentAvailability(
     })
     .getOne();
 
-  return !!isAvailableForAppointment;
+  return !isAvailableForAppointment;
 }

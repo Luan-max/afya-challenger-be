@@ -6,6 +6,7 @@ import {
   Get,
   HttpCode,
   InternalServerErrorException,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -105,5 +106,21 @@ export class AppointmentsController {
   @HttpCode(204)
   public async remove(@Param('id') id: string): Promise<void> {
     return this.appointmentsService.remove(id);
+  }
+
+  @ApiOperation({ summary: 'Get details of appointment' })
+  @Get(':id')
+  @ApiResponse({
+    status: 404,
+    description: 'Appointment does not exist',
+    type: NotFoundException,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server expection error trying get details patient',
+    type: InternalServerErrorException,
+  })
+  public async getById(@Param('id') id: string): Promise<any> {
+    return this.appointmentsService.getById(id);
   }
 }

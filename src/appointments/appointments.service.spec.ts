@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -10,15 +11,23 @@ import { Patient } from '../patients/entities/patient.entity';
 import { AppoitmentMocks } from './appointments.mocks';
 import { AppointmentsService } from './appointments.service';
 import * as checkAppointmentAvailability from './helpers/checkAppointmentAvailability.helper';
+import { Note } from '../notes/entities/note.entity';
+import { NoteMock } from '..//notes/notes.mocks';
+import { PatientMocks } from '../patients/patients.mocks';
 
 describe('AppointmentsService', () => {
   let appointmentService: AppointmentsService;
   let appointmentRepository: Repository<Appointment>;
   let patientRepository: Repository<Patient>;
   let objectAppoitmentMock: AppoitmentMocks;
+  let objectNotesMock: NoteMock;
+  let objectPatientMock: PatientMocks;
+  let notesRepository: Repository<Note>;
 
   beforeEach(async () => {
     objectAppoitmentMock = new AppoitmentMocks();
+    objectNotesMock = new NoteMock();
+    objectPatientMock = new PatientMocks();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -39,6 +48,12 @@ describe('AppointmentsService', () => {
             findOne: jest.fn(),
           })),
         },
+        {
+          provide: getRepositoryToken(Note),
+          useClass: jest.fn(() => ({
+            find: jest.fn(),
+          })),
+        },
       ],
     }).compile();
 
@@ -49,6 +64,7 @@ describe('AppointmentsService', () => {
     patientRepository = module.get<Repository<Patient>>(
       getRepositoryToken(Patient),
     );
+    notesRepository = module.get<Repository<Note>>(getRepositoryToken(Note));
   });
 
   describe('create', () => {
@@ -312,6 +328,84 @@ describe('AppointmentsService', () => {
           expect(error).toBeInstanceOf(InternalServerErrorException);
           expect(error.message).toStrictEqual(
             'Internal server expection error trying remove patient',
+          );
+          expect(error.status).toStrictEqual(500);
+        }
+      });
+    });
+  });
+
+  describe('get by id', () => {
+    let mockId;
+    let mockAppointment;
+    let mockNotes;
+    let mockPatient;
+
+    describe('when no error', () => {
+      it('get appointment details by id', async () => {
+        mockId = 1;
+        mockAppointment = objectAppoitmentMock.appointment;
+        mockNotes = objectNotesMock.mockNotes;
+        mockPatient = objectPatientMock.mockPatient;
+        appointmentRepository.findOne = jest
+          .fn()
+          .mockResolvedValue(mockAppointment);
+        patientRepository.findOne = jest.fn().mockReturnValue(mockPatient);
+        notesRepository.find = jest.fn().mockReturnValue(mockNotes);
+
+        const result = await appointmentService.getById(mockId);
+        expect(appointmentRepository.findOne).toHaveBeenCalledWith({
+          where: {
+            id: mockId,
+          },
+          select: ['id', 'startDate', 'endDate'],
+        });
+        expect(notesRepository.find).toHaveBeenCalledWith({
+          where: {
+            appointmentId: Number(mockAppointment.id),
+          },
+          select: ['date', 'note'],
+        });
+        expect(patientRepository.findOne).toHaveBeenCalledWith({
+          where: {
+            id: mockAppointment.patientId,
+          },
+          select: ['name', 'weight', 'height', 'birthday'],
+        });
+        expect(result).toEqual({
+          ...mockAppointment,
+          notes: mockNotes,
+          patient: mockPatient,
+        });
+      });
+    });
+
+    describe('when error', () => {
+      it('when i try to look for a schedule that does not exist', async () => {
+        mockId = 1;
+        appointmentRepository.findOne = jest.fn().mockReturnValue(undefined);
+
+        try {
+          await appointmentService.getById(mockId);
+        } catch (error) {
+          expect(error).toBeInstanceOf(NotFoundException);
+          expect(error.message).toStrictEqual('Appointment does not exist');
+          expect(error.status).toStrictEqual(404);
+        }
+      });
+
+      it('when an unexpected error trying to find appointment details', async () => {
+        mockId = 1;
+        appointmentRepository.findOne = jest
+          .fn()
+          .mockRejectedValue(new Error());
+
+        try {
+          await appointmentService.getById(mockId);
+        } catch (error) {
+          expect(error).toBeInstanceOf(InternalServerErrorException);
+          expect(error.message).toStrictEqual(
+            'Internal server expection error trying get details patient',
           );
           expect(error.status).toStrictEqual(500);
         }

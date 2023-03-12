@@ -50,6 +50,8 @@ $ npm run test:cov
 
 ## Projeto
 
+Collection POSTMAN: https://documenter.getpostman.com/view/18172811/2s93JtR4HQ
+
 Este projeto também está hospedado na Cloud do Render, para executar os endpoints basta acessar a documentação oficial -  **[Afya Challenger API](https://afya-challenger.onrender.com/api/documentation)**
 
 ![Swagger](https://i.ibb.co/9nTYf6N/Captura-de-tela-de-2023-03-12-12-06-50.png)

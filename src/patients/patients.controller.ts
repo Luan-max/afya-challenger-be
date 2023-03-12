@@ -89,6 +89,10 @@ export class PatientsController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete an patient' })
   @ApiResponse({
+    status: 204,
+    description: 'No content',
+  })
+  @ApiResponse({
     status: 400,
     description: 'Patient you are trying to delete does not exist',
     type: BadRequestException,

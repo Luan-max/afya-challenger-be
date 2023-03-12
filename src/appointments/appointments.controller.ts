@@ -94,6 +94,10 @@ export class AppointmentsController {
   @ApiOperation({ summary: 'Delete an appointment' })
   @Delete(':id')
   @ApiResponse({
+    status: 204,
+    description: 'No content',
+  })
+  @ApiResponse({
     status: 400,
     description: 'Appointment you are trying to delete does not exist',
     type: BadRequestException,

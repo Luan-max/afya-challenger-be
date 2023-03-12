@@ -3,6 +3,7 @@ import {
   HttpStatus,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Patient } from '../patients/entities/patient.entity';
@@ -12,7 +13,7 @@ import { UpdateAppointmentDto } from './dtos/update-appointment.dto';
 import { Appointment } from '../appointments/entities/appointment.entity';
 
 import { checkAppointmentAvailability } from './helpers/checkAppointmentAvailability.helper';
-
+import { Note } from '../notes/entities/note.entity';
 @Injectable()
 export class AppointmentsService {
   constructor(
@@ -20,6 +21,8 @@ export class AppointmentsService {
     private appointmentRepository: Repository<Appointment>,
     @InjectRepository(Patient)
     private patientRepository: Repository<Patient>,
+    @InjectRepository(Note)
+    private notesRepository: Repository<Note>,
   ) {}
 
   async create(createAppointmentDto: CreateAppointmentDto) {
@@ -153,6 +156,47 @@ export class AppointmentsService {
 
       throw new InternalServerErrorException({
         message: 'Internal server expection error trying remove patient',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
+    }
+  }
+
+  async getById(id: string) {
+    try {
+      const appointment = await this.appointmentRepository.findOne({
+        where: { id },
+        select: ['id', 'startDate', 'endDate'],
+      });
+
+      if (!appointment) {
+        throw new NotFoundException('Appointment does not exist');
+      }
+
+      const [notes, patient] = await Promise.all([
+        this.notesRepository.find({
+          where: { appointmentId: id },
+          select: ['date', 'note'],
+        }),
+        this.patientRepository.findOne({
+          where: { id: appointment.patientId },
+          select: ['name', 'weight', 'height', 'birthday'],
+        }),
+      ]);
+
+      return {
+        ...appointment,
+        notes,
+        patient,
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException)
+        throw new NotFoundException({
+          message: error.message,
+          statusCode: HttpStatus.NOT_FOUND,
+        });
+
+      throw new InternalServerErrorException({
+        message: 'Internal server expection error trying get details patient',
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       });
     }

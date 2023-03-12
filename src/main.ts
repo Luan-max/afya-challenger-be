@@ -22,7 +22,10 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Afya Challenger API')
-    .setDescription('Scheduling system and medical appointments')
+    .setDescription(
+      'Welcome to the Patient, Appointment and Note API! This API allows you to access and manage patient \n\
+    information, appointments, and appointment notes in your healthcare system.',
+    )
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
